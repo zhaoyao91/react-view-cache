@@ -25,3 +25,15 @@ export function deepAssign(base, extension) {
 
   return base;
 }
+
+export function getIds(items) {
+  return items.map(item => item.id);
+}
+
+export function difference(a, b) {
+  const result = [];
+  for (let value of a) {
+    if (b.indexOf(value) < 0) result.push(value);
+  }
+  return result;
+}

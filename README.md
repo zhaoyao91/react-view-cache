@@ -38,6 +38,10 @@ Cache.options.xxx = ...
 * hooks
   * beforeSwitch(oldViewId, newViewId)
   * afterSwitch(oldViewId, newViewId)
+  * beforeAdd(viewId)
+  * afterAdd(viewId)
+  * beforeRemove(viewId)
+  * afterRemove(viewId)
   
 ## Cache
 Cache will render component by current props, and the previous components will be hidden.

@@ -27,7 +27,11 @@ var DefaultOptions = {
   cacheLimit: 5,
   hooks: {
     beforeSwitch: function beforeSwitch(oldViewId, newViewId) {},
-    afterSwitch: function afterSwitch(oldViewId, newViewId) {}
+    afterSwitch: function afterSwitch(oldViewId, newViewId) {},
+    beforeAdd: function beforeAdd(viewId) {},
+    afterAdd: function afterAdd(viewId) {},
+    beforeRemove: function beforeRemove(viewId) {},
+    afterRemove: function afterRemove(viewId) {}
   }
 };
 
@@ -55,8 +59,8 @@ function createCache(options) {
     }
 
     _createClass(Cache, [{
-      key: "componentWillMount",
-      value: function componentWillMount() {
+      key: "componentDidMount",
+      value: function componentDidMount() {
         this.refresh(this.props);
       }
     }, {
@@ -72,20 +76,50 @@ function createCache(options) {
         viewItems.forEach(function (item) {
           return clearTimeout(item.cacheTimer);
         });
+
+        Cache.options.hooks.beforeSwitch(this.state.activeId, '');
+        Cache.options.hooks.afterSwitch(this.state.activeId, '');
+
+        (0, _lib.getIds)(viewItems).forEach(function (id) {
+          Cache.options.hooks.beforeRemove(id);
+          Cache.options.hooks.afterRemove(id);
+        });
       }
     }, {
       key: "componentWillUpdate",
       value: function componentWillUpdate(nextProps, nextState) {
         var oldId = this.state.activeId;
         var newId = nextState.activeId;
+        var oldIds = (0, _lib.getIds)(this.state.viewItems);
+        var newIds = (0, _lib.getIds)(nextState.viewItems);
+        var addedIds = (0, _lib.difference)(newIds, oldIds);
+        var removedIds = (0, _lib.difference)(oldIds, newIds);
+
         if (oldId !== newId) Cache.options.hooks.beforeSwitch(oldId, newId);
+        addedIds.forEach(function (id) {
+          return Cache.options.hooks.beforeAdd(id);
+        });
+        removedIds.forEach(function (id) {
+          return Cache.options.hooks.beforeRemove(id);
+        });
       }
     }, {
       key: "componentDidUpdate",
       value: function componentDidUpdate(prevProps, prevState) {
         var oldId = prevState.activeId;
         var newId = this.state.activeId;
+        var oldIds = (0, _lib.getIds)(prevState.viewItems);
+        var newIds = (0, _lib.getIds)(this.state.viewItems);
+        var addedIds = (0, _lib.difference)(newIds, oldIds);
+        var removedIds = (0, _lib.difference)(oldIds, newIds);
+
         if (oldId !== newId) Cache.options.hooks.afterSwitch(oldId, newId);
+        addedIds.forEach(function (id) {
+          return Cache.options.hooks.afterAdd(id);
+        });
+        removedIds.forEach(function (id) {
+          return Cache.options.hooks.afterRemove(id);
+        });
       }
     }, {
       key: "render",
@@ -119,14 +153,16 @@ function createCache(options) {
         var viewItems = _state2.viewItems;
 
 
+        var newViewItems = viewItems.slice();
+
         if (!viewId) {
           // set cache timer for switch-out item
-          var preViewItem = viewItems.find(function (item) {
+          var preViewItem = newViewItems.find(function (item) {
             return item.id === activeId;
           });
           this.setCacheTimer(preViewItem);
         } else {
-          var viewItem = viewItems.find(function (item) {
+          var viewItem = newViewItems.find(function (item) {
             return item.id === viewId;
           });
           if (viewItem) {
@@ -140,7 +176,7 @@ function createCache(options) {
               clearTimeout(viewItem.cacheTimer);
 
               // set cache timer for switch-out item
-              var _preViewItem = viewItems.find(function (item) {
+              var _preViewItem = newViewItems.find(function (item) {
                 return item.id === activeId;
               });
               this.setCacheTimer(_preViewItem);
@@ -153,23 +189,23 @@ function createCache(options) {
               cacheTime: cacheTime,
               lastActivatedAt: new Date()
             };
-            viewItems.push(newViewItem);
+            newViewItems.push(newViewItem);
 
             // set cache timer for previous item
-            var _preViewItem2 = viewItems.find(function (item) {
+            var _preViewItem2 = newViewItems.find(function (item) {
               return item.id === activeId;
             });
             this.setCacheTimer(_preViewItem2);
 
             // remove oldest surplus item
-            if (viewItems.length > this.getCacheLimit()) {
+            if (newViewItems.length > this.getCacheLimit()) {
               (function () {
-                var oldestItem = viewItems.reduce(function (min, cur) {
+                var oldestItem = newViewItems.reduce(function (min, cur) {
                   return cur.lastActivatedAt < min.lastActivatedAt ? cur : min;
-                }, viewItems[0]);
+                }, newViewItems[0]);
                 if (oldestItem) {
                   clearTimeout(oldestItem.cacheTimer);
-                  viewItems.splice(viewItems.findIndex(function (item) {
+                  newViewItems.splice(newViewItems.findIndex(function (item) {
                     return item === oldestItem;
                   }), 1);
                 }
@@ -181,7 +217,7 @@ function createCache(options) {
         // update state
         this.setState({
           activeId: viewId,
-          viewItems: viewItems
+          viewItems: newViewItems
         });
       }
     }, {
@@ -189,14 +225,15 @@ function createCache(options) {
       value: function expireItem(id) {
         var viewItems = this.state.viewItems;
 
-        var index = viewItems.findIndex(function (item) {
+        var viewItem = viewItems.find(function (item) {
           return item.id === id;
         });
-        if (index >= 0) {
-          var viewItem = viewItems[index];
+        if (viewItem) {
           clearTimeout(viewItem.cacheTimer);
-          viewItems.splice(index, 1);
-          this.setState({ viewItems: viewItems });
+          var newViewItems = viewItems.filter(function (item) {
+            return item !== viewItem;
+          });
+          this.setState({ viewItems: newViewItems });
         }
       }
     }, {

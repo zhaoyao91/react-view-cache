@@ -1,5 +1,5 @@
 import React from "react";
-import {deepEqual, deepAssign} from "./lib";
+import {deepEqual, deepAssign, getIds, difference} from "./lib";
 
 const DefaultOptions = {
   cacheTime: 5 * 60 * 1000, // 5 minutes
@@ -8,6 +8,14 @@ const DefaultOptions = {
     beforeSwitch(oldViewId, newViewId){
     },
     afterSwitch(oldViewId, newViewId){
+    },
+    beforeAdd(viewId){
+    },
+    afterAdd(viewId){
+    },
+    beforeRemove(viewId){
+    },
+    afterRemove(viewId){
     },
   }
 };
@@ -32,7 +40,7 @@ export default function createCache(options) {
       viewItems: [],
     };
 
-    componentWillMount() {
+    componentDidMount() {
       this.refresh(this.props);
     }
 
@@ -43,18 +51,40 @@ export default function createCache(options) {
     componentWillUnmount() {
       const { viewItems } = this.state;
       viewItems.forEach(item => clearTimeout(item.cacheTimer));
+
+      Cache.options.hooks.beforeSwitch(this.state.activeId, '');
+      Cache.options.hooks.afterSwitch(this.state.activeId, '');
+
+      getIds(viewItems).forEach(id => {
+        Cache.options.hooks.beforeRemove(id);
+        Cache.options.hooks.afterRemove(id);
+      })
     }
 
     componentWillUpdate(nextProps, nextState) {
       const oldId = this.state.activeId;
       const newId = nextState.activeId;
+      const oldIds = getIds(this.state.viewItems);
+      const newIds = getIds(nextState.viewItems);
+      const addedIds = difference(newIds, oldIds);
+      const removedIds = difference(oldIds, newIds);
+
       if (oldId !== newId) Cache.options.hooks.beforeSwitch(oldId, newId);
+      addedIds.forEach(id => Cache.options.hooks.beforeAdd(id));
+      removedIds.forEach(id => Cache.options.hooks.beforeRemove(id));
     }
 
     componentDidUpdate(prevProps, prevState) {
       const oldId = prevState.activeId;
       const newId = this.state.activeId;
+      const oldIds = getIds(prevState.viewItems);
+      const newIds = getIds(this.state.viewItems);
+      const addedIds = difference(newIds, oldIds);
+      const removedIds = difference(oldIds, newIds);
+
       if (oldId !== newId) Cache.options.hooks.afterSwitch(oldId, newId);
+      addedIds.forEach(id => Cache.options.hooks.afterAdd(id));
+      removedIds.forEach(id => Cache.options.hooks.afterRemove(id));
     }
 
     render() {
@@ -81,13 +111,15 @@ export default function createCache(options) {
       const { viewId, view, cacheTime } = props;
       const { activeId, viewItems } = this.state;
 
+      const newViewItems = viewItems.slice();
+
       if (!viewId) {
         // set cache timer for switch-out item
-        const preViewItem = viewItems.find(item => item.id === activeId);
+        const preViewItem = newViewItems.find(item => item.id === activeId);
         this.setCacheTimer(preViewItem);
       }
       else {
-        const viewItem = viewItems.find(item => item.id === viewId);
+        const viewItem = newViewItems.find(item => item.id === viewId);
         if (viewItem) {
           // update item
           viewItem.view = view;
@@ -99,7 +131,7 @@ export default function createCache(options) {
             clearTimeout(viewItem.cacheTimer);
 
             // set cache timer for switch-out item
-            const preViewItem = viewItems.find(item => item.id === activeId);
+            const preViewItem = newViewItems.find(item => item.id === activeId);
             this.setCacheTimer(preViewItem)
           }
         }
@@ -111,21 +143,21 @@ export default function createCache(options) {
             cacheTime: cacheTime,
             lastActivatedAt: new Date,
           };
-          viewItems.push(newViewItem);
+          newViewItems.push(newViewItem);
 
           // set cache timer for previous item
-          const preViewItem = viewItems.find(item => item.id === activeId);
+          const preViewItem = newViewItems.find(item => item.id === activeId);
           this.setCacheTimer(preViewItem);
 
           // remove oldest surplus item
-          if (viewItems.length > this.getCacheLimit()) {
-            const oldestItem = viewItems.reduce(
+          if (newViewItems.length > this.getCacheLimit()) {
+            const oldestItem = newViewItems.reduce(
               (min, cur) => cur.lastActivatedAt < min.lastActivatedAt ? cur : min,
-              viewItems[ 0 ]
+              newViewItems[ 0 ]
             );
             if (oldestItem) {
               clearTimeout(oldestItem.cacheTimer);
-              viewItems.splice(viewItems.findIndex(item => item === oldestItem), 1);
+              newViewItems.splice(newViewItems.findIndex(item => item === oldestItem), 1);
             }
           }
         }
@@ -134,18 +166,17 @@ export default function createCache(options) {
       // update state
       this.setState({
         activeId: viewId,
-        viewItems: viewItems,
+        viewItems: newViewItems,
       })
     }
 
     expireItem(id) {
       const { viewItems } = this.state;
-      const index = viewItems.findIndex(item => item.id === id);
-      if (index >= 0) {
-        const viewItem = viewItems[ index ];
+      const viewItem = viewItems.find(item => item.id === id);
+      if (viewItem) {
         clearTimeout(viewItem.cacheTimer);
-        viewItems.splice(index, 1);
-        this.setState({ viewItems });
+        const newViewItems = viewItems.filter(item => item !== viewItem);
+        this.setState({ viewItems: newViewItems });
       }
     }
 

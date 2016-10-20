@@ -20,5 +20,6 @@ module.exports = {
     root: [
       path.resolve(__dirname, './node_modules')
     ]
-  }
+  },
+  devtool: 'source-map'
 };

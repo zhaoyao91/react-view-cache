@@ -10,17 +10,34 @@ const Cache = createCache({
 
     afterSwitch(oldId, newId) {
       console.log('after switch', oldId, newId)
+    },
+
+    beforeAdd(id) {
+      console.log('before add', id);
+    },
+
+    afterAdd(id) {
+      console.log('after add', id);
+    },
+
+    beforeRemove(id) {
+      console.log('before remove', id);
+    },
+
+    afterRemove(id) {
+      console.log('after remove', id);
     }
   }
 });
 
 class Page extends React.Component {
   state = {
-    text: ''
+    text: '',
+    display: true
   };
 
   render() {
-    const { text } = this.state;
+    const { text, display } = this.state;
 
     return <div>
       <form onSubmit={::this.onSubmit}>
@@ -28,7 +45,9 @@ class Page extends React.Component {
         <button type="submit">ok</button>
       </form>
 
-      <Cache viewId={text} view={({ isActive }) => <View isActive={isActive} text={text}/>}/>
+      <button onClick={() => this.setState({ display: !display })}>toggle</button>
+
+      {display && <Cache viewId={text} view={({ isActive }) => <View isActive={isActive} text={text}/>} cacheTime={3000}/>}
     </div>
   }
 
@@ -40,17 +59,17 @@ class Page extends React.Component {
 
 class View extends React.Component {
   componentDidMount() {
-    console.log('mount', this.props.text);
+//     console.log('mount', this.props.text);
   }
 
   componentWillUnmount() {
-    console.log('unmount', this.props.text);
+//     console.log('unmount', this.props.text);
   }
 
   render() {
     const { text, isActive } = this.props;
 
-    console.log('render', text, isActive);
+//     console.log('render', text, isActive);
 
     return <div>
       <div>text: {text}</div>
