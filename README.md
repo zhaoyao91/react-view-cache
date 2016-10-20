@@ -53,5 +53,8 @@ Cache will render component by current props, and the previous components will b
   * func({isActive}): react node
 * [cacheTime] - optional, cache time for this component
   
+## Examples
+- [Cache page with scroll restoration](https://github.com/zhaoyao91/react-view-cache/blob/master/examples/cache_page_with_scroll_restoration/index.js)
+  
 ## License
 MIT
