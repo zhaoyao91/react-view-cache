@@ -1,0 +1,33 @@
+{
+  "name": "react-view-cache",
+  "version": "1.0.0",
+  "description": "cache react views",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zhaoyao91/react-view-cache.git"
+  },
+  "bugs": {
+    "url": "https://github.com/zhaoyao91/react-view-cache/issues"
+  },
+  "homepage": "https://github.com/zhaoyao91/react-view-cache#readme",
+  "keywords": [
+    "react",
+    "view",
+    "cache"
+  ],
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "babel src -d dist"
+  },
+  "author": "zhaoyao91",
+  "license": "MIT",
+  "peerDependencies": {
+    "react": "^0.14.0 || ^15.0.0"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.16.0",
+    "babel-preset-es2015": "^6.16.0",
+    "babel-preset-react": "^6.16.0",
+    "babel-preset-stage-0": "^6.16.0"
+  }
+}
