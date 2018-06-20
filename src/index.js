@@ -1,5 +1,6 @@
 import React from "react";
 import {deepEqual, deepAssign, getIds, difference} from "./lib";
+import PropTypes from 'prop-types';
 
 const DefaultOptions = {
   cacheTime: 5 * 60 * 1000, // 5 minutes

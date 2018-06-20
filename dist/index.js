@@ -14,6 +14,10 @@ var _react2 = _interopRequireDefault(_react);
 
 var _lib = require("./lib");
 
+var _propTypes = require("prop-types");
+
+var _propTypes2 = _interopRequireDefault(_propTypes);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -124,9 +128,9 @@ function createCache(options) {
     }, {
       key: "render",
       value: function render() {
-        var _state = this.state;
-        var activeId = _state.activeId;
-        var viewItems = _state.viewItems;
+        var _state = this.state,
+            activeId = _state.activeId,
+            viewItems = _state.viewItems;
 
 
         return _react2.default.createElement(
@@ -145,12 +149,12 @@ function createCache(options) {
     }, {
       key: "refresh",
       value: function refresh(props) {
-        var viewId = props.viewId;
-        var view = props.view;
-        var cacheTime = props.cacheTime;
-        var _state2 = this.state;
-        var activeId = _state2.activeId;
-        var viewItems = _state2.viewItems;
+        var viewId = props.viewId,
+            view = props.view,
+            cacheTime = props.cacheTime;
+        var _state2 = this.state,
+            activeId = _state2.activeId,
+            viewItems = _state2.viewItems;
 
 
         var newViewItems = viewItems.slice();
@@ -199,17 +203,15 @@ function createCache(options) {
 
             // remove oldest surplus item
             if (newViewItems.length > this.getCacheLimit()) {
-              (function () {
-                var oldestItem = newViewItems.reduce(function (min, cur) {
-                  return cur.lastActivatedAt < min.lastActivatedAt ? cur : min;
-                }, newViewItems[0]);
-                if (oldestItem) {
-                  clearTimeout(oldestItem.cacheTimer);
-                  newViewItems.splice(newViewItems.findIndex(function (item) {
-                    return item === oldestItem;
-                  }), 1);
-                }
-              })();
+              var oldestItem = newViewItems.reduce(function (min, cur) {
+                return cur.lastActivatedAt < min.lastActivatedAt ? cur : min;
+              }, newViewItems[0]);
+              if (oldestItem) {
+                clearTimeout(oldestItem.cacheTimer);
+                newViewItems.splice(newViewItems.findIndex(function (item) {
+                  return item === oldestItem;
+                }), 1);
+              }
             }
           }
         }
@@ -291,9 +293,9 @@ function createCache(options) {
     }, {
       key: "render",
       value: function render() {
-        var _props = this.props;
-        var args = _props.args;
-        var view = _props.view;
+        var _props = this.props,
+            args = _props.args,
+            view = _props.view;
 
         return view(args);
       }
