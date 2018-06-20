@@ -26,12 +26,12 @@ export default function createCache(options) {
     static options = deepAssign(deepAssign({}, DefaultOptions), options);
 
     static propTypes = {
-      viewId: React.PropTypes.string.isRequired,
-      view: React.PropTypes.oneOfType([
-        React.PropTypes.func,
-        React.PropTypes.node,
+      viewId: PropTypes.string.isRequired,
+      view: PropTypes.oneOfType([
+        PropTypes.func,
+        PropTypes.node,
       ]).isRequired,
-      cacheTime: React.PropTypes.number
+      cacheTime: PropTypes.number
     };
 
     state = {
@@ -202,8 +202,8 @@ export default function createCache(options) {
   // optimize re-render
   class View extends React.Component {
     static propTypes = {
-      args: React.PropTypes.object,
-      view: React.PropTypes.func.isRequired,
+      args: PropTypes.object,
+      view: PropTypes.func.isRequired,
     };
 
     shouldComponentUpdate(nextProps) {

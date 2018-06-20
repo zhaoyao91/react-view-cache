@@ -1,6 +1,6 @@
 {
   "name": "react-view-cache",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "cache react views",
   "repository": {
     "type": "git",
@@ -31,6 +31,6 @@
     "babel-preset-stage-0": "^6.16.0"
   },
   "dependencies": {
-    "prop-types": "^15.6.2"
+    "prop-types": "^15.0.0"
   }
 }

@@ -271,9 +271,9 @@ function createCache(options) {
 
   Cache.options = (0, _lib.deepAssign)((0, _lib.deepAssign)({}, DefaultOptions), options);
   Cache.propTypes = {
-    viewId: _react2.default.PropTypes.string.isRequired,
-    view: _react2.default.PropTypes.oneOfType([_react2.default.PropTypes.func, _react2.default.PropTypes.node]).isRequired,
-    cacheTime: _react2.default.PropTypes.number
+    viewId: _propTypes2.default.string.isRequired,
+    view: _propTypes2.default.oneOfType([_propTypes2.default.func, _propTypes2.default.node]).isRequired,
+    cacheTime: _propTypes2.default.number
   };
 
   var View = function (_React$Component2) {
@@ -305,8 +305,8 @@ function createCache(options) {
   }(_react2.default.Component);
 
   View.propTypes = {
-    args: _react2.default.PropTypes.object,
-    view: _react2.default.PropTypes.func.isRequired
+    args: _propTypes2.default.object,
+    view: _propTypes2.default.func.isRequired
   };
 
 
